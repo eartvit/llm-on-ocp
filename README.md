@@ -1,7 +1,7 @@
 # How to deploy an LLM on RedHat OpenShift
 This repository is a quick walkthrough on the steps required to deploy large language models on Red Hat OpenShift (OCP). This is an adapted guide inspired by the docs, guides and examples provided on [ai-on-openshift.io](https://ai-on-openshift.io/generative-ai/llm-serving/).
 
-This guide provides the steps applicable for an OCP 4.13.x instance deployed on AWS, however the steps are similar for other cloud providers and on-prem deployment of the OCP platform. A video guide of the walkthrough is available [here](https://www.youtube.com).
+This guide provides the steps applicable for an OCP 4.13.x instance deployed on AWS, however the steps are similar for other cloud providers and on-prem deployment of the OCP platform. A video guide of the walkthrough is available [here](https://youtu.be/JPndKASUm1s).
 
 This guide will deploy the [Mistral-7B-Instruct-v0.2](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2) model. Instructions on how to retrieve the model files are provided on the Hugging Face website where the model is hosted.
 
