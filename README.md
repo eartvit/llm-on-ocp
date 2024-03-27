@@ -1,2 +1,113 @@
-# llm-on-ocp
-How to deploy an LLM on RedHat OpenShift
+# How to deploy an LLM on RedHat OpenShift
+This repository is a quick walkthrough on the steps required to deploy large language models on Red Hat OpenShift (OCP). This is an adapted guide inspired by the docs, guides and examples provided on [ai-on-openshift.io](https://ai-on-openshift.io/generative-ai/llm-serving/).
+
+This guide provides the steps applicable for an OCP 4.13.x instance deployed on AWS, however the steps are similar for other cloud providers and on-prem deployment of the OCP platform. A video guide of the walkthrough is available [here](https://www.youtube.com).
+
+This guide will deploy the [Mistral-7B-Instruct-v0.2](https://huggingface.co/mistralai/Mistral-7B-Instruct-v0.2) model. Instructions on how to retrieve the model files are provided on the Hugging Face website where the model is hosted.
+
+## Prerequisites
+
+In order to host a LLM on OCP you need an OCP cluster with GPU nodes. You may deploy without GPU however the responsiveness of the model will be much slower. This guide assumes a GPU shall be used (as a requirement from one of the containers deployed from [Quay](https://quay.io)). 
+
+The OCP platform requires a number of operators to be installed and available in order to perform the actual deployment as depicted in the below picture (name and version used for this demo):
+![installed-operators](images/installed-operators.png)
+
+Install the operators in the following order:
+1. Install RedHat OpenShift Pipelines - while this operator is not directly required for LLM deployment, it is a dependent operator for having all the functionality in the RedHat OpenShift AI operator (RHOAI), namely the data-science pipelines
+2. Install RedHat OpenShift Data Foundation and configure it in a MultiObject Gateway setting since we only need the object store component provided by the storage operator. This provides the S3 compatible storage requred by RHOAI's data connection as the model storage location.
+3. Install the RedHat OpenShift Service Mesh operator dependencies and the service mesh operator. [Reference documentation](https://docs.openshift.com/container-platform/4.13/service_mesh/v2x/installing-ossm.html). *Note: Do not configure the ServiceMesh operator after installation!!!*
+   1. Install the OpenShift Elasticsearch operator
+   2. Install the RedHat OpenShift distributed tracing platform (Jaeger)
+   3. Install the Kiali operator
+   4. Install the RedHat OpenShift Service Mesh operator
+4. Install the RedHat OpenShift Serverless operator. [Reference documentation](https://docs.openshift.com/serverless/1.30/install/install-serverless-operator.html). *Note: Do not perform any configuration on the operator after installation!!!*
+5. Ensure you have GPU nodes on your cluster. For AWS, follow [this](https://cloud.redhat.com/blog/creating-a-gpu-enabled-node-with-openshift-4-2-in-amazon-ec2) guide.
+6. Install NVidia operators:
+   1. Install the Node Feature Discovery (NFD) Operator and configure it. [Reference documentation](https://docs.nvidia.com/datacenter/cloud-native/openshift/23.9.1/install-nfd.html#install-nfd).
+   2. Install the Nvidia GPU operarator and configure it. [Reference documentation](https://docs.nvidia.com/datacenter/cloud-native/openshift/23.9.1/install-gpu-ocp.html#install-nvidiagpu).
+7. Install the RedHat Openshift AI operator and create a default cluster. The default configuration should deploy KServe and allow you to deploy single model serving. Before creating your default RHOAI cluster, you can verify your setup by performing the checks from [here](https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.5/html/working_on_data_science_projects/serving-large-language-models_serving-large-language-models#configuring-automated-installation-of-kserve_serving-large-language-models).
+
+## Configure a serving runtime
+
+This [repo](https://github.com/rh-aiservices-bu/llm-on-openshift/blob/main/serving-runtimes/vllm_runtime/README.md) provides the step by step information for quyickly adding a [vLLM](https://docs.vllm.ai/en/latest/index.html) serving runtime.
+
+In our case, we used a g5.xlarge machine having an A10 GPU to deploy our model. Generally, you need on the host VM the amount of RAM >= the amount of VRAM. In our case however, this condition is not satisfied, as the g5.xlarge machines have 16 GiB of RAM and the A10 card has 24 GiB of VRAM. Therefore, we need to tweak the arguments for the vLLM container deployment and add some parameters that will force the engine to shrink the model (process known as quantization).
+We need to add:
+ * dtype as float16
+ * max-model-len as 5900
+
+So the `vLLM.yaml` should look like below:
+```
+apiVersion: serving.kserve.io/v1alpha1
+kind: ServingRuntime
+labels:
+  opendatahub.io/dashboard: "true"
+metadata:
+  annotations:
+    openshift.io/display-name: vLLM
+  name: vllm
+spec:
+  builtInAdapter:
+    modelLoadingTimeoutMillis: 90000
+  containers:
+    - args:
+        - --model
+        - /mnt/models/
+        - --dtype
+        - float16
+        - --max-model-len
+        - "5900"
+        - --download-dir
+        - /models-cache
+        - --port
+        - "8080"
+      image: quay.io/rh-aiservices-bu/vllm-openai-ubi9:0.3.1
+      name: kserve-container
+      ports:
+        - containerPort: 8080
+          name: http1
+          protocol: TCP
+  multiModel: false
+  supportedModelFormats:
+    - autoSelect: true
+      name: pytorch
+```
+
+Deploy this YAML inside the Serving Runtimes configurations of RHOAI as described [here](https://github.com/rh-aiservices-bu/llm-on-openshift/blob/main/serving-runtimes/vllm_runtime/README.md).
+
+## Deploy the LLM model
+
+Once you locally downloaded the Mistral model files, you need to place them on the S3 storage that will be used as a data connection inside your RHOAI project.
+Head over to the RHOAI console and:
+1. Create a Datascience project (e.g. test-llm).
+2. Switch to the OCP console and select the newly created project. Go on the Storage options and create an object blucket claim (e.g. llm-bucket). Use the credentials you obtain to
+   1. Configure on your local `.aws` folder the credentials profile for the bucket you created so that you can upload the files using the `aws` [cli](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html#cliv2-linux-install) tool.
+   2. Configure the Data Connection inside your RHOAI project (the test-llm).
+
+Next, move out (or delete) the git cache files you downloaded (the .gitignore and .git folder from where your model was downloaded) and then upload the model files to the bucket. Make sure you do not upload directly to the root folder, the files need to be placed in folder other than the root, i.e. Mistral-7B-Instruct-v0.2.
+The command to upload the files should look like: 
+
+```bash
+aws s3 sybc --profile=llm-bucket --endpoint=<your OCP S3 route endopoint> ./Mistral-7B-Instruct-v0.2 s3://<llm-bucket-name>/Mistral-7B-Instruct-v0.2/
+```
+
+*Note the /Mistral-7B-Instruct-v0.2/ after the name of the bucket.*
+
+Next, within the RHOAI dashboard, select your data-science project and deploy a Single Serving instance under 'Models and models and servers sections' of the project using the vLLM instance type you added in the earlier step. When deploying the instance ensure you select GPU and use a custom size deployment and define the limits depending on your available resources. For example, if using a g5.xlarge ensure your memory limits are between 8GiB and 14GiB of RAM and CPU limites between 2 and 3 cores.
+
+Next, the model deployment will automatically kick off from the defined data connection. Please be patient here, it will take some time for the model to deploy and the KServe pods and services to become available (approximately 15-20 minutes).
+As soon as your model is deployed, you will see the inference endpoint available in the RHOAI dashboard.
+
+## Test the LLM model
+
+Once deployed, you can test your model either directly using some `curl` based commands or via code. You can find an example notebook that uses [LangChain](https://python.langchain.com/docs/get_started/introduction) in this repository.
+
+For a cli quick test, you can issue the following:
+```bash
+curl -k <inference_endpoint_from_RHOAI>/v1/completions  -H "Content-Type: application/json"       -d '{ \
+          "model": "/mnt/models/", \
+          "prompt": "Describe Paris in 100 words or less.", \
+          "max_tokens": 100, \
+          "temperature": 0 \
+      }'
+```
