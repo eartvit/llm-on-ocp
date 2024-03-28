@@ -111,3 +111,15 @@ curl -k <inference_endpoint_from_RHOAI>/v1/completions  -H "Content-Type: applic
           "temperature": 0 \
       }'
 ```
+
+## How to "chat" with your documentation?
+
+As explained [here](https://ai-on-openshift.io/generative-ai/llm-serving/#context-and-definitions), in order to use a generic LLM to perform a specific task you can fine tune it (a.k.a retrain), or use RAG (retrieval-augmented generation). While fine-tuning is more effective, it may also be more expensive to perform. Another less expensive way of enhancing the LLM's knowledge is by using RAG which we shall present next.
+
+The video walkthrough is available [here](https://youtu.be/VhmLKkNMjKI).
+
+The procedure is as follows:
+1. Deploy a Vector database. [Milvus](https://milvus.io/) is an open-source vector databae that can also run on Kubernetes environments like Red Hat OpenShift. A deployment guide is available [here](https://github.com/rh-aiservices-bu/llm-on-openshift/tree/main/vector-databases/milvus). The video walkthrough uses the single (standalone) deployment.
+2. Note that as recommended in the deployment guide, the default password should be changed. The user and the new-password should then be added as environment variables to the data-science project defined at the LLM deployment step inside the RHOAI dashboard.
+3. Use the [document ingest](notebooks/Milvus-ingest-LangChain.ipynb) notebook to get some PDF files (the RHOAI documentation), create embeddings and ingest the vectors in the Milvus instance
+4. Use the [RAG example](notebooks/RAG-example-vLLM-Milvus-LangChain.ipynb) notebook to LLM model capabilities of "chatting" with your documentation (ingested in step 3).
