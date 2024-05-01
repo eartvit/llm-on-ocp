@@ -6,6 +6,5 @@ data:
   collections.json: |-
     [
       {"name":"none","display_name":"None"},
-      {"name":"collection_1","display_name":"Collection 1"},
-      {"name":"collection_2","display_name":"Collection 2"}
+      {"name":"demo_collection","display_name":"RHOAI 2.6"}
     ]

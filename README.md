@@ -129,7 +129,7 @@ The procedure is as follows:
 In order to use in a controlled and secure way the access to the LLM an interfacing application is recommended that exposes some user friendly interface.
 An example of such application is provided in the [chatbot-ui](chatbot-ui) folder of this repository. Please note that alongside the source code the folder contains also necessary files to build a container and configurations for Red Hat OpenShift to run the application.
 
-The deployment walkthrough is provided [here](https://youtu.be/).
+The deployment walkthrough is provided [here](https://youtu.be/n2ba3vAvELM).
 
 The steps are as follows:
 1. Create a new project inside Red Hat OpenShift using either the console or the cli tool. Let's assume the project is called `hatbot`
