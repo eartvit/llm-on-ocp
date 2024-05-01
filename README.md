@@ -88,7 +88,7 @@ Next, move out (or delete) the git cache files you downloaded (the .gitignore an
 The command to upload the files should look like: 
 
 ```bash
-aws s3 sybc --profile=llm-bucket --endpoint=<your OCP S3 route endopoint> ./Mistral-7B-Instruct-v0.2 s3://<llm-bucket-name>/Mistral-7B-Instruct-v0.2/
+aws s3 sync --profile=llm-bucket --endpoint=<your OCP S3 route endopoint> ./Mistral-7B-Instruct-v0.2 s3://<llm-bucket-name>/Mistral-7B-Instruct-v0.2/
 ```
 
 *Note the /Mistral-7B-Instruct-v0.2/ after the name of the bucket.*
@@ -123,3 +123,24 @@ The procedure is as follows:
 2. Note that as recommended in the deployment guide, the default password should be changed. The user and the new-password should then be added as environment variables to the data-science project defined at the LLM deployment step inside the RHOAI dashboard.
 3. Use the [document ingest](notebooks/Milvus-ingest-LangChain.ipynb) notebook to get some PDF files (the RHOAI documentation), create embeddings and ingest the vectors in the Milvus instance
 4. Use the [RAG example](notebooks/RAG-example-vLLM-Milvus-LangChain.ipynb) notebook to LLM model capabilities of "chatting" with your documentation (ingested in step 3).
+
+### Adding an User Interface
+
+In order to use in a controlled and secure way the access to the LLM an interfacing application is recommended that exposes some user friendly interface.
+An example of such application is provided in the [chatbot-ui](chatbot-ui) folder of this repository. Please note that alongside the source code the folder contains also necessary files to build a container and configurations for Red Hat OpenShift to run the application.
+
+The deployment walkthrough is provided [here](https://youtu.be/).
+
+The steps are as follows:
+1. Create a new project inside Red Hat OpenShift using either the console or the cli tool. Let's assume the project is called `hatbot`
+2. Add the two config maps to the project, either via the cli or by using the console
+3. Add the `service.yaml` to the project to create the service for the deployment.
+4. Add the `deployment.yaml` to the project. Please note the deployment uses a ready container stored in [quay.io](https://quay.io/repository/avitui/gradio-rag-milvus-vllm-openai) and uses version `v1.1` of the container. The deployment is scaled down to zero by default, so ensure you scale it up after you verify the environment parameters.
+5. Create a route for the earlier created service so that you can access the UI outside of the cluster.
+
+Once loaded the UI should look like below:
+![hatbot-ui](images/hatbot.png)
+
+The UI application provided here is a very basic one nevertheless it provides sufficient context to understand what elements should be present in a real, production ready type of UI.
+
+This was the final part of the demo. I hope you enjoyed it.
