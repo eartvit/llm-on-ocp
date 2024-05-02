@@ -137,7 +137,7 @@ The steps are as follows:
 1. Create a new project inside Red Hat OpenShift using either the console or the cli tool. Let's assume the project is called `hatbot`
 2. Add the two config maps to the project, either via the cli or by using the console
 3. Add the `service.yaml` to the project to create the service for the deployment.
-4. Add the `deployment.yaml` to the project. Please note the deployment uses a ready container stored in [quay.io](https://quay.io/repository/avitui/gradio-rag-milvus-vllm-openai) and uses version `v1.1` of the container. The deployment is scaled down to zero by default, so ensure you scale it up after you verify the environment parameters.
+4. Add the `deployment.yaml` to the project. Please note the deployment uses a ready container stored in [quay.io](https://quay.io/repository/avitui/gradio-rag-milvus-vllm-openai) and uses version `v1.2` of the container. The deployment is scaled down to zero by default, so ensure you scale it up after you verify the environment parameters.
 5. Create a route for the earlier created service so that you can access the UI outside of the cluster.
 
 Once loaded the UI should look like below:
