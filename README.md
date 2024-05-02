@@ -129,6 +129,8 @@ The procedure is as follows:
 In order to use in a controlled and secure way the access to the LLM an interfacing application is recommended that exposes some user friendly interface.
 An example of such application is provided in the [chatbot-ui](chatbot-ui) folder of this repository. Please note that alongside the source code the folder contains also necessary files to build a container and configurations for Red Hat OpenShift to run the application.
 
+*NOTE: The video mentions using v1.1 for the hatbot image. Please use v1.2 instead as it appears that a token is required to use a specific model for `langchain.embeddings.huggingface.HuggingFaceEmbeddings` and to avoid that we shall use the default instance.*
+
 The deployment walkthrough is provided [here](https://youtu.be/n2ba3vAvELM).
 
 The steps are as follows:

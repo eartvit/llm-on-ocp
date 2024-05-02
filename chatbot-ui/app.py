@@ -185,7 +185,7 @@ def stream(input_text, selected_collection) -> Generator:
 # Document store: Milvus
 model_kwargs = {'trust_remote_code': True}
 embeddings = HuggingFaceEmbeddings(
-    model_name="nomic-ai/nomic-embed-text-v1",
+    #model_name="nomic-ai/nomic-embed-text-v1",
     model_kwargs=model_kwargs,
     show_progress=False
 )
