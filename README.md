@@ -7,7 +7,10 @@ This guide will deploy the [Mistral-7B-Instruct-v0.2](https://huggingface.co/mis
 
 ## Prerequisites
 
-In order to host a LLM on OCP you need an OCP cluster with GPU nodes. You may deploy without GPU however the responsiveness of the model will be much slower. This guide assumes a GPU shall be used (as a requirement from one of the containers deployed from [Quay](https://quay.io)). 
+Hosting an LLM on OCP can be done with or without a GPU. For performance reasons, it is recommended to proceed with a GPU. You may deploy without GPU however the responsiveness of the model will be much slower. This guide assumes, in the first part, that a GPU shall be used (as a requirement from one of the containers deployed from [Quay](https://quay.io)). 
+A second part will describe options for CPU based deployments.
+
+## GPU based setup
 
 The OCP platform requires a number of operators to be installed and available in order to perform the actual deployment as depicted in the below picture (name and version used for this demo):
 ![installed-operators](images/installed-operators.png)
@@ -145,4 +148,17 @@ Once loaded the UI should look like below:
 
 The UI application provided here is a very basic one nevertheless it provides sufficient context to understand what elements should be present in a real, production ready type of UI.
 
-This was the final part of the demo. I hope you enjoyed it.
+This was the final part of the GPU based demo. I hope you enjoyed it.
+
+## CPU based setup
+
+Deploying an LLM using a CPU-only setup is possible, however, there are certain limitations to be considered when doing so, especially when thinking about the speed and responsiveness of the LLM.
+
+Red Hat OpenShift AI comes with several options for CPU only serving for LLMs (Caikit TGIS, TGIS standalone, OpenVino model server). Additionally, other serving runtimes may be added (as presented earlier in the demo, where we added a vLLM serving runtime), such as Ollama and vLLM. To be noted that vLLM requires CPUs with AVX-512 instruction set in order to work.
+
+While Ollama is significantly faster than the other serving runtimes, noteworthy is the aspect that the models packed by Ollama are "altered" from the original ones (published by the model creators), and, most importantly, you can only deploy with Ollama whatever exists in the Ollama repository. In other words, you can't deploy with Ollama a custom model that you specialized with your own data. This limitation does not apply for the other serving runtimes.
+
+The resources provided to configure the cluster with CPU based LLM serving are available in this repository and the video guide on how to perform the deployment is [here](https://youtu.be/oewfzPxLJdU)
+
+This concludes the setup for the CPU based demo.
+
