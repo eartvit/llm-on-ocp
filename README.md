@@ -156,9 +156,9 @@ Deploying an LLM using a CPU-only setup is possible, however, there are certain 
 
 Red Hat OpenShift AI comes with several options for CPU only serving for LLMs (Caikit TGIS, TGIS standalone, OpenVino model server). Additionally, other serving runtimes may be added (as presented earlier in the demo, where we added a vLLM serving runtime), such as Ollama and vLLM. To be noted that vLLM requires CPUs with AVX-512 instruction set in order to work.
 
-While Ollama is significantly faster than the other serving runtimes, noteworthy is the aspect that the models packed by Ollama are "altered" from the original ones (published by the model creators), and, most importantly, you can deploy with Ollama whatever exists in the Ollama repository. In other words, to deploy with Ollama a custom model that you specialized with your own data you need to go through a model transformation phase as described on the Ollama website. This limitation does not apply for the other serving runtimes.
+While Ollama is significantly faster than the other serving runtimes, noteworthy is the aspect that the models packed by Ollama are "altered" from the original ones (published by the model creators), and, most importantly, you can deploy as-is with Ollama whatever exists in the Ollama repository. In other words, to deploy with Ollama a custom model that you specialized with your own data you need to go through a model transformation phase as described on the Ollama website. This limitation does not apply for the other serving runtimes.
 
-The resources provided to configure the cluster with CPU based LLM serving are available in this repository and the video guide on how to perform the deployment is [here](https://youtu.be/oewfzPxLJdU)
+The resources provided to configure the cluster with CPU based LLM serving are available in this repository and the video guide on how to perform the deployment is [here](https://youtu.be/yTsTtCqteUA)
 
 This concludes the setup for the CPU based demo.
 
