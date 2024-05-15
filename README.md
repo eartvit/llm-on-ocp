@@ -8,7 +8,7 @@ This guide will deploy the [Mistral-7B-Instruct-v0.2](https://huggingface.co/mis
 ## Prerequisites
 
 Hosting an LLM on OCP can be done with or without a GPU. For performance reasons, it is recommended to proceed with a GPU. You may deploy without GPU however the responsiveness of the model will be much slower. This guide assumes, in the first part, that a GPU shall be used (as a requirement from one of the containers deployed from [Quay](https://quay.io)). 
-A second part will describe options for CPU based deployments.
+A second part will describe options for CPU based deployments (also includes a walkthrough video).
 
 ## GPU based setup
 
