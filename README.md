@@ -19,16 +19,17 @@ Install the operators in the following order:
 1. Install RedHat OpenShift Pipelines - while this operator is not directly required for LLM deployment, it is a dependent operator for having all the functionality in the RedHat OpenShift AI operator (RHOAI), namely the data-science pipelines
 2. Install RedHat OpenShift Data Foundation and configure it in a MultiObject Gateway setting since we only need the object store component provided by the storage operator. This provides the S3 compatible storage requred by RHOAI's data connection as the model storage location.
 3. Install the RedHat OpenShift Service Mesh operator dependencies and the service mesh operator. [Reference documentation](https://docs.openshift.com/container-platform/4.13/service_mesh/v2x/installing-ossm.html). *Note: Do not configure the ServiceMesh operator after installation!!!*
-   1. Install the OpenShift Elasticsearch operator
-   2. Install the RedHat OpenShift distributed tracing platform (Jaeger)
+   1. Install the OpenShift Elasticsearch operator. *Note: Recent versions of ServiceMesh do not require this any more, instead install the Tempo operator*
+   2. Install the RedHat OpenShift distributed tracing platform (Jaeger). *Note: Recent versions of ServiceMesh do not require this any more, instead install the Tempo operator*
    3. Install the Kiali operator
    4. Install the RedHat OpenShift Service Mesh operator
 4. Install the RedHat OpenShift Serverless operator. [Reference documentation](https://docs.openshift.com/serverless/1.30/install/install-serverless-operator.html). *Note: Do not perform any configuration on the operator after installation!!!*
-5. Ensure you have GPU nodes on your cluster. For AWS, follow [this](https://cloud.redhat.com/blog/creating-a-gpu-enabled-node-with-openshift-4-2-in-amazon-ec2) guide.
-6. Install NVidia operators:
+5. As of OpenshiftAI 2.19, for single serving runtime the Authorino operator is also required, so please install that one too. *Note: Do not configure the operator, RHOAI will do that for you later.*
+6. Ensure you have GPU nodes on your cluster. For AWS, follow [this](https://cloud.redhat.com/blog/creating-a-gpu-enabled-node-with-openshift-4-2-in-amazon-ec2) guide.
+7. Install NVidia operators:
    1. Install the Node Feature Discovery (NFD) Operator and configure it. [Reference documentation](https://docs.nvidia.com/datacenter/cloud-native/openshift/23.9.1/install-nfd.html#install-nfd).
    2. Install the Nvidia GPU operarator and configure it. [Reference documentation](https://docs.nvidia.com/datacenter/cloud-native/openshift/23.9.1/install-gpu-ocp.html#install-nvidiagpu).
-7. Install the RedHat Openshift AI operator and create a default cluster. The default configuration should deploy KServe and allow you to deploy single model serving. Before creating your default RHOAI cluster, you can verify your setup by performing the checks from [here](https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.5/html/working_on_data_science_projects/serving-large-language-models_serving-large-language-models#configuring-automated-installation-of-kserve_serving-large-language-models).
+8. Install the RedHat Openshift AI operator and create a default cluster. The default configuration should deploy KServe and allow you to deploy single model serving. Before creating your default RHOAI cluster, you can verify your setup by performing the checks from [here](https://access.redhat.com/documentation/en-us/red_hat_openshift_ai_self-managed/2.5/html/working_on_data_science_projects/serving-large-language-models_serving-large-language-models#configuring-automated-installation-of-kserve_serving-large-language-models).
 
 ## Configure a serving runtime
 
